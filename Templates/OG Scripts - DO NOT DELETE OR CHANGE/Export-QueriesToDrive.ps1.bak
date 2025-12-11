@@ -1,0 +1,115 @@
+﻿# ============================
+# Export-QueriesToDrive.ps1
+# Run multiple SQL queries and upload CSVs to Google Drive
+# ============================
+
+param (
+    [string]$ConfigPath = "C:\GDriveAPI\Config\HourlyQueries.json"
+)
+
+$DriveFolderId         = "1-EWEHx_d2fd0I1D8zgzTNkg44bj5LE-U"
+
+# ============================
+# ❌ DO NOT EDIT BELOW THIS LINE
+# ============================
+
+
+$ServiceAccountKeyPath = "C:\GDriveAPI\Token\driveapi-fbrdata.json"
+$NugetBasePath         = "C:\Program Files\PackageManagement\NuGet\Packages"
+
+# Load Newtonsoft.Json and all Google DLLs
+$dlls = @()
+$dlls += Get-ChildItem "$NugetBasePath\Google.Apis.Drive.v3*\lib\netstandard2.0\*.dll" -Recurse
+$dlls += Get-ChildItem "$NugetBasePath\Google.Apis.Auth*\lib\netstandard2.0\*.dll" -Recurse
+$dlls += Get-ChildItem "$NugetBasePath\Google.Apis.Core*\lib\netstandard2.0\*.dll" -Recurse
+$dlls += Get-ChildItem "$NugetBasePath\Google.Apis*\lib\netstandard2.0\*.dll" -Recurse
+$dlls += Get-ChildItem "$NugetBasePath\Newtonsoft.Json*\lib\netstandard2.0\*.dll" -Recurse
+
+foreach ($dll in $dlls) {
+    try { [Reflection.Assembly]::LoadFrom($dll.FullName) | Out-Null }
+    catch { Write-Warning "⚠️ Failed to load $($dll.FullName): $_" }
+}
+
+# Validate required Google types
+try {
+    $GoogleCredentialType   = [Google.Apis.Auth.OAuth2.GoogleCredential]
+    $DriveServiceType       = [Google.Apis.Drive.v3.DriveService]
+    $BaseClientServiceType  = [Google.Apis.Services.BaseClientService]
+    $DriveFileType          = [Google.Apis.Drive.v3.Data.File]
+} catch {
+    throw "❌ Required Google API types could not be resolved."
+}
+
+# Authenticate service account
+$scopes = @("https://www.googleapis.com/auth/drive")
+$credential = $GoogleCredentialType::FromFile($ServiceAccountKeyPath).CreateScoped($scopes)
+$initializer = New-Object ($BaseClientServiceType.FullName + '+Initializer') -Property @{
+    HttpClientInitializer = $credential
+    ApplicationName       = "Drive API PowerShell Upload"
+}
+$service = [Activator]::CreateInstance($DriveServiceType, $initializer)
+
+# Load JSON config
+$config = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json
+
+foreach ($entry in $config) {
+    try {
+        Write-Host "📃 Processing: $($entry.DriveFileName)"
+        $queryPath = $entry.QueryFilePath
+        if (-not (Test-Path $queryPath)) {
+            Write-Warning "⚠️ Query file not found: $queryPath"
+            continue
+        }
+
+        $queryText = Get-Content -Raw -Path $queryPath
+        $results = Invoke-Sqlcmd -ServerInstance $entry.SQLServer -Database $entry.Database -Query $queryText -EncryptConnection -TrustServerCertificate
+
+        if (-not $results -or $results.Count -eq 0) {
+            Write-Warning "⚠️ Query returned no rows. Skipping $($entry.DriveFileName)."
+            continue
+        }
+
+        Write-Host "✅ SQL query succeeded, uploading to Drive..."
+
+        $existingFile = $service.Files.List()
+        $existingFile.Q = "'$DriveFolderId' in parents and name = '$($entry.DriveFileName)' and trashed = false"
+        $existingFile.Fields = "files(id, name)"
+        $existingFiles = $existingFile.Execute().Files
+
+        $memStream = New-Object System.IO.MemoryStream
+        $writer = New-Object System.IO.StreamWriter($memStream, [System.Text.Encoding]::UTF8)
+        $csvContent = $results | ConvertTo-Csv -NoTypeInformation
+        $csvContent[0] = $csvContent[0] -replace '"', ''  # Strip quotes from headers only
+        foreach ($line in $csvContent) {
+            $writer.WriteLine($line)
+        }
+        $writer.Flush()
+        $memStream.Position = 0
+
+        if ($existingFiles.Count -gt 0) {
+            $fileId = $existingFiles[0].Id
+            $updateRequest = $service.Files.Update($null, $fileId, $memStream, "text/csv")
+            $updateRequest.Fields = "id"
+            $updateRequest.Upload()
+            Write-Host "♻️ File updated: $($entry.DriveFileName)"
+        } else {
+            $fileMetadata = [Activator]::CreateInstance($DriveFileType)
+            $fileMetadata.Name = $entry.DriveFileName
+            $fileMetadata.Parents = [System.Collections.Generic.List[string]]::new()
+            $fileMetadata.Parents.Add($DriveFolderId)
+
+            $createRequest = $service.Files.Create($fileMetadata, $memStream, "text/csv")
+            $createRequest.Fields = "id"
+            $createRequest.Upload()
+            Write-Host "🚀 Uploaded new file: $($entry.DriveFileName)"
+        }
+
+        Write-Output "✅ Exported $($results.Count) rows to $($entry.DriveFileName)"
+        $writer.Dispose()
+        $memStream.Dispose()
+    } catch {
+        Write-Error "❌ Error processing $($entry.DriveFileName): $_"
+    }
+}
+
+Write-Host "💡 All queries processed."

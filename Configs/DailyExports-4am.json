@@ -1,0 +1,33 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "CMMS",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily-4am\\InsertionCount.sql",
+        "DriveFileName": "InsertionCount.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "WreckingBall",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily-4am\\ReworkTAYGETA.sql",
+        "DriveFileName": "ReworkTAYGETA.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PRODDIST",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily-4am\\RPT_MaterialMOR.sql",
+        "DriveFileName": "RPT_MaterialMOR.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "FBCMMS",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily-4am\\LyraLogs.sql",
+        "DriveFileName": "LyraLogs.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily-4am\\TotalHoursWorked.sql",
+        "DriveFileName": "TotalHoursWorked.csv"
+    }
+]
+

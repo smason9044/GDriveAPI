@@ -1,0 +1,8 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShippingDB",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\45min\\PowerBoxTester.sql",
+        "DriveFileName": "PowerBoxTester.csv"
+    }
+]

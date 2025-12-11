@@ -1,0 +1,325 @@
+﻿# ============================
+# Export-QueriesToDrive-Parallel.ps1 (watchdog + webhook + clean headers)
+# ============================
+
+param (
+    [string]$ConfigPath  = "C:\GDriveAPI\Configs\DailyExports1.json",
+    [string]$WebhookURL  = "https://chat.googleapis.com/v1/spaces/AAQAJrNN0cc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=CvjAf5Oupe-53IogtShKnJRcBjJI61JogiFphcntSYg",
+    [string]$DriveFolderId         = "1-EWEHx_d2fd0I1D8zgzTNkg44bj5LE-U",
+    [string]$ServiceAccountKeyPath = "C:\GDriveAPI\Token\driveapi-fbrdata.json",
+    [string]$NugetBasePath         = "C:\GDriveAPI\lib"
+)
+
+# Ensure SqlServer module
+if (-not (Get-Module -ListAvailable -Name SqlServer)) {
+    try { Install-Module -Name SqlServer -Scope AllUsers -Force -ErrorAction Stop } catch {}
+}
+Import-Module SqlServer -ErrorAction SilentlyContinue
+
+# Webhook helper (parent scope)
+function Send-WebhookMessage {
+    param([Parameter(Mandatory)][string]$Message)
+    if ([string]::IsNullOrWhiteSpace($WebhookURL)) { return }
+    try {
+        $body = @{ text = $Message } | ConvertTo-Json -Depth 3
+        Invoke-RestMethod -Uri $WebhookURL -Method Post -Body $body -ContentType 'application/json' -ErrorAction Stop | Out-Null
+    } catch {
+        Write-Warning ("Webhook post failed: {0}" -f $_.Exception.Message)
+    }
+}
+
+# Local DLL loader for Google Drive client libraries
+function Load-DriveDlls {
+    param([Parameter(Mandatory)][string]$Base)
+    $dlls = @()
+    if (Test-Path $Base) {
+        $direct = Get-ChildItem -Path $Base -Filter *.dll -File -ErrorAction SilentlyContinue
+        if ($direct.Count -gt 0) { $dlls += $direct }
+        if ($dlls.Count -eq 0) {
+            $patterns = @(
+                'Google.Apis.Drive.v3*\lib\netstandard2.0\*.dll',
+                'Google.Apis.Auth*\lib\netstandard2.0\*.dll',
+                'Google.Apis.Core*\lib\netstandard2.0\*.dll',
+                'Google.Apis*\lib\netstandard2.0\*.dll',
+                'Newtonsoft.Json*\lib\netstandard2.0\*.dll'
+            )
+            foreach ($p in $patterns) {
+                $dlls += Get-ChildItem -Path (Join-Path $Base $p) -Recurse -ErrorAction SilentlyContinue
+            }
+        }
+    }
+    foreach ($dll in ($dlls | Select-Object -Unique)) {
+        try { [Reflection.Assembly]::LoadFrom($dll.FullName) | Out-Null } catch {}
+    }
+    Write-Host ("   Assemblies loaded from: {0}" -f $Base)
+}
+
+# Load config
+if (-not (Test-Path -LiteralPath $ConfigPath)) { throw "Config file not found: $ConfigPath" }
+$config = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json
+
+# Worker script (per query in a background job)
+$scriptBlock = {
+    param ($Entry, $DriveFolderId, $ServiceAccountKeyPath, $NugetBasePath, $WebhookURL)
+
+    function Send-WebhookMessage {
+        param([Parameter(Mandatory)][string]$Message)
+        if ([string]::IsNullOrWhiteSpace($WebhookURL)) { return }
+        try {
+            $body = @{ text = $Message } | ConvertTo-Json -Depth 3
+            Invoke-RestMethod -Uri $WebhookURL -Method Post -Body $body -ContentType 'application/json' -ErrorAction Stop | Out-Null
+        } catch { }
+    }
+
+    function Load-DriveDlls {
+        param([Parameter(Mandatory)][string]$Base)
+        $dlls = @()
+        if (Test-Path $Base) {
+            $direct = Get-ChildItem -Path $Base -Filter *.dll -File -ErrorAction SilentlyContinue
+            if ($direct.Count -gt 0) { $dlls += $direct }
+            if ($dlls.Count -eq 0) {
+                $patterns = @(
+                    'Google.Apis.Drive.v3*\lib\netstandard2.0\*.dll',
+                    'Google.Apis.Auth*\lib\netstandard2.0\*.dll',
+                    'Google.Apis.Core*\lib\netstandard2.0\*.dll',
+                    'Google.Apis*\lib\netstandard2.0\*.dll',
+                    'Newtonsoft.Json*\lib\netstandard2.0\*.dll'
+                )
+                foreach ($p in $patterns) {
+                    $dlls += Get-ChildItem -Path (Join-Path $Base $p) -Recurse -ErrorAction SilentlyContinue
+                }
+            }
+        }
+        foreach ($dll in ($dlls | Select-Object -Unique)) {
+            try { [Reflection.Assembly]::LoadFrom($dll.FullName) | Out-Null } catch {}
+        }
+        Write-Host ("   Assemblies loaded from: {0}" -f $Base)
+    }
+
+    try {
+        Write-Host "==> Processing: $($Entry.DriveFileName)"
+        Load-DriveDlls -Base $NugetBasePath
+
+        # Google API setup
+        $GoogleCredentialType   = [Google.Apis.Auth.OAuth2.GoogleCredential]
+        $DriveServiceType       = [Google.Apis.Drive.v3.DriveService]
+        $BaseClientServiceType  = [Google.Apis.Services.BaseClientService]
+        $DriveFileType          = [Google.Apis.Drive.v3.Data.File]
+
+        $scopes = @("https://www.googleapis.com/auth/drive")
+        $credential  = $GoogleCredentialType::FromFile($ServiceAccountKeyPath).CreateScoped($scopes)
+        $initializer = New-Object ($BaseClientServiceType.FullName + '+Initializer') -Property @{
+            HttpClientInitializer = $credential
+            ApplicationName       = "Drive API PowerShell Upload"
+        }
+        $service = [Activator]::CreateInstance($DriveServiceType, $initializer)
+
+        # SQL execution via InputFile
+        $queryPath = [string]$Entry.QueryFilePath
+        if (-not (Test-Path -LiteralPath $queryPath)) { throw "Query file not found: $queryPath" }
+
+        Write-Host ("   Target: {0}\{1}" -f $Entry.SQLServer, $Entry.Database)
+        Write-Host ("   Running SQL file: {0}" -f $queryPath)
+
+        $ErrorActionPreference = 'Stop'
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $results = Invoke-Sqlcmd `
+            -ServerInstance $Entry.SQLServer `
+            -Database       $Entry.Database `
+            -InputFile      $queryPath `
+            -Encrypt        Optional `
+            -TrustServerCertificate `
+            -ConnectionTimeout 10
+        $sw.Stop()
+        Write-Host ("   Invoke-Sqlcmd duration: {0:n1}s" -f $sw.Elapsed.TotalSeconds)
+        
+        # CSV build (Cols:0 on empty; strip DataRow internals when needed)
+        $memStream = New-Object System.IO.MemoryStream
+        $writer    = New-Object System.IO.StreamWriter($memStream, [System.Text.Encoding]::UTF8)
+
+        $exclude = 'RowError','RowState','Table','ItemArray','HasErrors'
+        $rows = @()
+        $colNames = @()
+
+        if ($results -is [System.Data.DataTable]) {
+            $rows     = $results.Rows
+            $colNames = @($results.Columns | ForEach-Object ColumnName)
+        }
+        elseif ($results -is [System.Data.DataRow]) {
+            $rows     = ,$results
+            $colNames = @($results.Table.Columns | ForEach-Object ColumnName)
+        }
+        elseif ($results -is [System.Data.DataRowView]) {
+            $rows     = ,$results
+            $colNames = @($results.Row.Table.Columns | ForEach-Object ColumnName)
+        }
+        else {
+            if ($results -isnot [System.Collections.IEnumerable] -or $results -is [string]) { $rows = ,$results } else { $rows = $results }
+            if ($rows.Count -gt 0) {
+                $first    = $rows | Select-Object -First 1
+                $colNames = @($first.PSObject.Properties.Name | Where-Object { $_ -notin $exclude -and $_ -notmatch '^PS' })
+            }
+        }
+
+        $rowCount = ($rows | Measure-Object).Count
+        $colCount = $colNames.Count
+        Write-Host ("   SQL ok. Rows: {0}, Cols: {1}" -f $rowCount, $colCount)
+
+        if ($rowCount -gt 0 -and $colCount -gt 0) {
+            $projected = foreach ($r in $rows) {
+                $o = [PSCustomObject]@{}
+                foreach ($name in $colNames) {
+                    $val = if ($r -is [System.Data.DataRow]) { $r[$name] }
+                           elseif ($r -is [System.Data.DataRowView]) { $r.Row[$name] }
+                           else { $r.$name }
+                    if ($val -is [datetime]) { $val = $val.ToString('yyyy-MM-dd HH:mm:ss') }
+                    Add-Member -InputObject $o -NotePropertyName $name -NotePropertyValue $val -Force
+                }
+                $o
+            }
+            $csv = $projected | ConvertTo-Csv -NoTypeInformation
+            if ($csv.Count -gt 0) { $csv[0] = $csv[0] -replace '"','' }  # unquote header
+            foreach ($line in $csv) { $writer.WriteLine($line) }
+        }
+        else {
+            # Preserve your empty-file signal
+            $writer.WriteLine("")
+        }
+
+        $writer.Flush(); $memStream.Position = 0
+        Write-Host ("   CSV bytes (pre-upload): {0}" -f $memStream.Length)
+
+        # Upsert to Drive
+        $listReq = $service.Files.List()
+        $listReq.Q      = "'$DriveFolderId' in parents and name = '$($Entry.DriveFileName)' and trashed = false"
+        $listReq.Fields = "files(id,name)"
+        $existing       = $listReq.Execute().Files
+
+        $swUpload = [System.Diagnostics.Stopwatch]::StartNew()
+
+        if ($existing.Count -gt 0) {
+            $fileId = $existing[0].Id
+            $update = $service.Files.Update($null, $fileId, $memStream, "text/csv")
+            $update.Fields = "id"
+            $null = $update.Upload()
+            Write-Host ("   Drive updated: {0}" -f $Entry.DriveFileName)
+        } else {
+            $meta = [Activator]::CreateInstance($DriveFileType)
+            $meta.Name    = $Entry.DriveFileName
+            $meta.Parents = [System.Collections.Generic.List[string]]::new()
+            $meta.Parents.Add($DriveFolderId)
+            $create = $service.Files.Create($meta, $memStream, "text/csv")
+            $create.Fields = "id"
+            $null = $create.Upload()
+            Write-Host ("   Drive created: {0}" -f $Entry.DriveFileName)
+        }
+
+        $swUpload.Stop()
+        Write-Host ("   Upload duration: {0:n1}s" -f $swUpload.Elapsed.TotalSeconds)
+
+        # Summary line
+        $exported = 0
+        if ($results) {
+            if ($results -is [System.Data.DataTable]) { $exported = $results.Rows.Count }
+            else {
+                if ($results -isnot [System.Collections.IEnumerable] -or $results -is [string]) { $results = ,$results }
+                $exported = ($results | Measure-Object).Count
+            }
+        }
+        Write-Output ("? Exported {0} rows to {1}" -f $exported, $Entry.DriveFileName)
+
+        $writer.Dispose(); $memStream.Dispose()
+    }
+    catch {
+        $fn = '<unknown>'
+        if ($Entry -and ($Entry.PSObject.Properties.Name -contains 'DriveFileName') -and $Entry.DriveFileName) { $fn = $Entry.DriveFileName }
+        $msg = ("FAILED {0} | Server={1}\{2} | Query={3} | Error={4}" -f $fn, $Entry.SQLServer, $Entry.Database, $Entry.QueryFilePath, $_.Exception.Message)
+        Send-WebhookMessage $msg
+        Write-Error ("Error processing {0}: {1}" -f $fn, $_)
+    }
+}
+
+# ============================
+# Watchdog + parallel launcher
+# ============================
+
+# Watchdog settings
+$JobTimeoutSec    = 660
+$OverallBudgetSec = 700
+$overallStart     = Get-Date
+
+# Launch in parallel (name each job)
+$jobs = foreach ($entry in $config) {
+    $j = Start-Job -Name $entry.DriveFileName `
+                   -ScriptBlock $scriptBlock `
+                   -ArgumentList $entry, $DriveFolderId, $ServiceAccountKeyPath, $NugetBasePath, $WebhookURL
+    $j | Add-Member -NotePropertyName MaxSeconds -NotePropertyValue $JobTimeoutSec -Force
+    $j
+}
+
+# Monitor/collect with timeouts and cleanup
+$remaining = @($jobs)
+$jobPid    = @{}   # key = Job.Id, value = ProcessId
+$timedOut  = @{}   # key = Job.Id, value = $true
+
+while ($remaining.Count -gt 0) {
+
+    # Overall budget check
+    if ((New-TimeSpan -Start $overallStart -End (Get-Date)).TotalSeconds -ge $OverallBudgetSec) {
+        Send-WebhookMessage ("ABORT: overall budget exceeded ({0}s). Killing {1} remaining job(s)." -f $OverallBudgetSec, $remaining.Count)
+        foreach ($j in $remaining) {
+            try { Stop-Job -Job $j -Force -ErrorAction SilentlyContinue } catch {}
+            Write-Warning ("Aborted (overall budget) -> {0}" -f $j.Name)
+            Receive-Job -Job $j -ErrorAction SilentlyContinue | Write-Host
+            Remove-Job -Job $j -Force -ErrorAction SilentlyContinue
+        }
+        break
+    }
+
+    # Capture ProcessId once a job starts running
+    foreach ($j in $remaining) {
+        if ($j.State -eq 'Running' -and -not $jobPid.ContainsKey($j.Id)) {
+            try {
+                $childPid = $j.ChildJobs[0].ProcessId
+                if ($childPid) { $jobPid[$j.Id] = $childPid }
+            } catch { }
+        }
+    }
+
+    # Per-job wall-clock enforcement (kill process + job; de-dupe warnings)
+    foreach ($j in $remaining) {
+        if ($j.State -eq 'Running' -and $j.PSBeginTime) {
+            $elapsed = (New-TimeSpan -Start $j.PSBeginTime -End (Get-Date)).TotalSeconds
+            if ($elapsed -ge $j.MaxSeconds -and -not $timedOut.ContainsKey($j.Id)) {
+                $timedOut[$j.Id] = $true
+                $procId = if ($jobPid.ContainsKey($j.Id)) { $jobPid[$j.Id] } else { $null }
+
+                if ($procId) {
+                    try { Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue } catch { }
+                }
+                try { Stop-Job -Job $j -Force -ErrorAction SilentlyContinue } catch { }
+
+                $pidText = if ($procId) { $procId } else { 'n/a' }
+                $note = ("TIMED OUT after {0}s -> {1} (PID={2})" -f [int]$elapsed, $j.Name, $pidText)
+                Write-Warning $note
+                Send-WebhookMessage ("TIMED OUT {0} | Elapsed={1}s | PID={2}" -f $j.Name, [int]$elapsed, $pidText)
+            }
+        }
+    }
+
+    # Drain finished/stopped jobs
+    $done = Get-Job | Where-Object { $_.Id -in $remaining.Id -and $_.State -in 'Completed','Failed','Stopped' }
+    foreach ($j in $done) {
+        Receive-Job -Job $j -ErrorAction SilentlyContinue | Write-Host
+        if ($j.State -eq 'Stopped') {
+            Write-Host ("? Export aborted (timeout) for {0}" -f $j.Name)
+        }
+        Remove-Job -Job $j -Force -ErrorAction SilentlyContinue
+        $remaining = $remaining | Where-Object { $_.Id -ne $j.Id }
+    }
+
+    if ($remaining.Count -eq 0) { break }
+    Wait-Job -Job $remaining -Any -Timeout 3 | Out-Null
+}
+
+Write-Host "All parallel queries processed (with watchdog)."

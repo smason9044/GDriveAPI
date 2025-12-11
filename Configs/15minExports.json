@@ -1,0 +1,111 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\OpenWO-RTP_RTF.sql",
+        "DriveFileName": "OpenWO-RTP_RTF.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\RTP-FDetailCount.sql",
+        "DriveFileName": "RTP-FDetailCount.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "SHOPFLOORN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\TrayDebugNULLs.sql",
+        "DriveFileName": "TrayDebugNULLs.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "QUALITYREPORTING",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\FailureDebugDataFilterOpen.sql",
+        "DriveFileName": "FailureDebugDataFilterOpen.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PRODDIST",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\SFBoxStatusReport.sql",
+        "DriveFileName": "SFBoxStatusReport.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\Trays_SSCC_not_printed.sql",
+        "DriveFileName": "Trays_SSCC_not_printed.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\10kRacksVanTimeStudy.sql",
+        "DriveFileName": "10kRacksVanTimeStudy.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "WreckingBall",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\UpdatedVolBoxedWBJF.sql",
+        "DriveFileName": "UpdatedVolBoxedWBJF.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\TraysInDebug_JF.sql",
+        "DriveFileName": "TraysInDebug_JF.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\RTF_Detail_ReportJF.sql",
+        "DriveFileName": "RTF_Detail_ReportJF.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\HumanErrTraysUnboxed.sql",
+        "DriveFileName": "HumanErrTraysUnboxed.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopfloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\AllLiveRacksRM.sql",
+        "DriveFileName": "AllLiveRacksRM.csv"
+    }, 
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "NFShopfloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\NF_RacksHE_UnBoxed.sql",
+        "DriveFileName": "NF_RacksHE_UnBoxed.csv"
+    }, 
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PRODDIST",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\vol_boxed_detail.sql",
+        "DriveFileName": "vol_boxed_detail.csv"
+    }, 
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopfloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\top_10000_boxed_racks_tla.sql",
+        "DriveFileName": "top_10000_boxed_racks_tla.csv"
+    }, 
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "QualityReporting",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\vol_built_detail.sql",
+        "DriveFileName": "vol_built_detail.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\RTPDetails.sql",
+        "DriveFileName": "RTPDetails.csv"
+    },
+     {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\JackRackDataDump.sql",
+        "DriveFileName": "JackRackDataDump.csv"
+    }
+]
+

@@ -1,0 +1,21 @@
+SELECT Emp_ID,
+       EMP_LongName,
+       Create_Date,
+	   --CONVERT(DATE,tt) as tt,
+       Format(tt,'yyyy-MM-dd') AS tt,
+       ESDResult,
+       EMP_ProdGroup,
+       EMP_ShiftDesc,
+       EMP_JobTitle,
+       EMP_PayRateType,
+       EMP_Agency,
+       EMP_Dept,
+       EMP_TempStatus,
+       count1,
+       count2,
+       Turntile_In,
+       Turnstile_Out,
+	   SupName,
+	   SupRole
+FROM TimeClock.[dbo].[EmpDailyTurnstile]
+ORDER BY Emp_ID, Create_Date ASC

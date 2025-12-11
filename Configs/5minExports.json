@@ -1,0 +1,26 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PBxTester",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\5min\\PowerBoxTester.sql",
+        "DriveFileName": "PowerBoxTester.csv"
+    }, 
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PRODDIST",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\5min\\9SM_GPN_MultipleLines.sql",
+        "DriveFileName": "9SM_GPN_MultipleLines.csv"
+    },
+    {
+	"SQLServer": "FBRDATA",
+        "Database": "SHOPFLOORN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\5min\\temp_assettag_test.sql",
+        "DriveFileName": "temp_assettag_test.csv"
+    },
+    {
+	"SQLServer": "FBRDATA",
+        "Database": "SHOPFLOORN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\5min\\SFTestLogs.sql",
+        "DriveFileName": "SFTestLogs.csv"
+    }
+]

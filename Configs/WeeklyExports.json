@@ -1,0 +1,28 @@
+[
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "TRAINING",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Weekly\\Platform_Commodity.sql",
+    "DriveFileName": "Platform_Commodity.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "SHOPFLOORN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Weekly\\Boxed1year.sql",
+    "DriveFileName": "Boxed1year.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "TimeClock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Weekly\\ClockInDetailswithBreakHrs.sql",
+    "DriveFileName": "ClockInDetailswithBreakHrs.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "TimeClock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Weekly\\ActiveCommListALL.sql",
+    "DriveFileName": "ActiveCommListALL.csv"
+  }
+]
+
+

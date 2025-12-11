@@ -1,0 +1,176 @@
+﻿# ============================
+# Export-QueriesToDrive-Parallel.ps1
+# Run multiple SQL queries and upload CSVs to Google Drive (in parallel)
+# - Portable DLL loading (single lib folder OR NuGet packages tree)
+# - Logs rows/cols/bytes and always writes a CSV (even when 0 rows)
+# ============================
+
+param (
+    [string]$ConfigPath = "C:\GDriveAPI\Configs\DailyExports1.json"
+)
+
+# === USER SETTINGS ===
+$DriveFolderId         = "1-EWEHx_d2fd0I1D8zgzTNkg44bj5LE-U"
+$ServiceAccountKeyPath = "C:\GDriveAPI\Token\driveapi-fbrdata.json"
+# Point to either a portable lib folder OR the NuGet packages root
+$NugetBasePath         = "C:\GDriveAPI\lib"
+
+function Load-DriveDlls {
+    param([Parameter(Mandatory)][string]$Base)
+
+    $dlls = @()
+    if (Test-Path $Base) {
+        # Portable: DLLs directly in $Base
+        $direct = Get-ChildItem -Path $Base -Filter *.dll -File -ErrorAction SilentlyContinue
+        if ($direct.Count -gt 0) { $dlls += $direct }
+
+        # NuGet layout fallback
+        if ($dlls.Count -eq 0) {
+            $patterns = @(
+                'Google.Apis.Drive.v3*\lib\netstandard2.0\*.dll',
+                'Google.Apis.Auth*\lib\netstandard2.0\*.dll',
+                'Google.Apis.Core*\lib\netstandard2.0\*.dll',
+                'Google.Apis*\lib\netstandard2.0\*.dll',
+                'Newtonsoft.Json*\lib\netstandard2.0\*.dll'
+            )
+            foreach ($p in $patterns) {
+                $dlls += Get-ChildItem -Path (Join-Path $Base $p) -Recurse -ErrorAction SilentlyContinue
+            }
+        }
+    }
+
+    foreach ($dll in ($dlls | Select-Object -Unique)) {
+        try { [Reflection.Assembly]::LoadFrom($dll.FullName) | Out-Null } catch {}
+    }
+    Write-Host ("   Assemblies loaded from: {0}" -f $Base)
+}
+
+# Load JSON config
+if (-not (Test-Path -LiteralPath $ConfigPath)) { throw "Config file not found: $ConfigPath" }
+$config = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json
+
+$scriptBlock = {
+    param ($Entry, $DriveFolderId, $ServiceAccountKeyPath, $NugetBasePath)
+
+    function Load-DriveDlls {
+        param([Parameter(Mandatory)][string]$Base)
+        $dlls = @()
+        if (Test-Path $Base) {
+            $direct = Get-ChildItem -Path $Base -Filter *.dll -File -ErrorAction SilentlyContinue
+            if ($direct.Count -gt 0) { $dlls += $direct }
+            if ($dlls.Count -eq 0) {
+                $patterns = @(
+                    'Google.Apis.Drive.v3*\lib\netstandard2.0\*.dll',
+                    'Google.Apis.Auth*\lib\netstandard2.0\*.dll',
+                    'Google.Apis.Core*\lib\netstandard2.0\*.dll',
+                    'Google.Apis*\lib\netstandard2.0\*.dll',
+                    'Newtonsoft.Json*\lib\netstandard2.0\*.dll'
+                )
+                foreach ($p in $patterns) {
+                    $dlls += Get-ChildItem -Path (Join-Path $Base $p) -Recurse -ErrorAction SilentlyContinue
+                }
+            }
+        }
+        foreach ($dll in ($dlls | Select-Object -Unique)) {
+            try { [Reflection.Assembly]::LoadFrom($dll.FullName) | Out-Null } catch {}
+        }
+        Write-Host ("   Assemblies loaded from: {0}" -f $Base)
+    }
+
+    try {
+        Write-Host "==> Processing: $($Entry.DriveFileName)"
+        Load-DriveDlls -Base $NugetBasePath
+
+        # Resolve Google API types
+        $GoogleCredentialType   = [Google.Apis.Auth.OAuth2.GoogleCredential]
+        $DriveServiceType       = [Google.Apis.Drive.v3.DriveService]
+        $BaseClientServiceType  = [Google.Apis.Services.BaseClientService]
+        $DriveFileType          = [Google.Apis.Drive.v3.Data.File]
+
+        # Auth
+        $scopes = @("https://www.googleapis.com/auth/drive")
+        $credential = $GoogleCredentialType::FromFile($ServiceAccountKeyPath).CreateScoped($scopes)
+        $initializer = New-Object ($BaseClientServiceType.FullName + '+Initializer') -Property @{
+            HttpClientInitializer = $credential
+            ApplicationName       = "Drive API PowerShell Upload"
+        }
+        $service = [Activator]::CreateInstance($DriveServiceType, $initializer)
+
+        # Load SQL text
+        $queryPath = [string]$Entry.QueryFilePath
+        if (-not (Test-Path -LiteralPath $queryPath)) { Write-Warning "   Query file not found: $queryPath"; return }
+        $queryText = Get-Content -Raw -Path $queryPath
+
+        # Run query
+        $results = Invoke-Sqlcmd -ServerInstance $Entry.SQLServer `
+                                 -Database $Entry.Database `
+                                 -Query $queryText `
+                                 -EncryptConnection -TrustServerCertificate
+
+        # Build CSV (always create a file)
+        $memStream = New-Object System.IO.MemoryStream
+        $writer    = New-Object System.IO.StreamWriter($memStream, [System.Text.Encoding]::UTF8)
+
+        if ($results -and $results.Count -gt 0) {
+            $colCount = 0
+            try { $colCount = ($results[0].PSObject.Properties.Name | Measure-Object).Count } catch { $colCount = 0 }
+            Write-Host ("   SQL ok. Rows: {0}, Cols: {1}" -f $results.Count, $colCount)
+
+            $csv = $results | ConvertTo-Csv -NoTypeInformation
+            if ($csv.Count -gt 0) { $csv[0] = $csv[0] -replace '"','' } # unquote header
+            foreach ($line in $csv) { $writer.WriteLine($line) }
+        }
+        else {
+            Write-Host "   SQL ok. Rows: 0, Cols: 0"
+            $writer.WriteLine("")  # minimal file so Drive can preview
+        }
+
+        $writer.Flush(); $memStream.Position = 0
+        Write-Host ("   CSV bytes (pre-upload): {0}" -f $memStream.Length)
+
+        # Upsert in Drive
+        $listReq = $service.Files.List()
+        $listReq.Q      = "'$DriveFolderId' in parents and name = '$($Entry.DriveFileName)' and trashed = false"
+        $listReq.Fields = "files(id,name)"
+        $existing       = $listReq.Execute().Files
+
+        if ($existing.Count -gt 0) {
+            $fileId = $existing[0].Id
+            $update = $service.Files.Update($null, $fileId, $memStream, "text/csv")
+            $update.Fields = "id"
+            $null = $update.Upload()
+            Write-Host ("   Drive updated: {0}" -f $Entry.DriveFileName)
+        } else {
+            $meta = [Activator]::CreateInstance($DriveFileType)
+            $meta.Name    = $Entry.DriveFileName
+            $meta.Parents = [System.Collections.Generic.List[string]]::new()
+            $meta.Parents.Add($DriveFolderId)
+            $create = $service.Files.Create($meta, $memStream, "text/csv")
+            $create.Fields = "id"
+            $null = $create.Upload()
+            Write-Host ("   Drive created: {0}" -f $Entry.DriveFileName)
+        }
+
+        # PS5-safe row count
+        $rowCount = 0
+        if ($results) { try { $rowCount = [int]$results.Count } catch { $rowCount = 0 } }
+        Write-Output ("? Exported {0} rows to {1}" -f $rowCount, $Entry.DriveFileName)
+
+        $writer.Dispose(); $memStream.Dispose()
+    }
+    catch {
+        $fn = '<unknown>'
+        if ($Entry -and ($Entry.PSObject.Properties.Name -contains 'DriveFileName') -and $Entry.DriveFileName) { $fn = $Entry.DriveFileName }
+        Write-Error ("Error processing {0}: {1}" -f $fn, $_)
+    }
+}
+
+# Launch all jobs in parallel
+$jobs = foreach ($entry in $config) {
+    Start-Job -ScriptBlock $scriptBlock -ArgumentList $entry, $DriveFolderId, $ServiceAccountKeyPath, $NugetBasePath
+}
+
+# Collect output
+$jobs | Wait-Job | Receive-Job | ForEach-Object { Write-Host $_ }
+$jobs | Remove-Job -Force | Out-Null
+Write-Host "All parallel queries processed."

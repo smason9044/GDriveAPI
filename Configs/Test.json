@@ -1,0 +1,14 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\FQA_Data.sql",
+        "DriveFileName": "FQA_Data.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "NFShopfloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\15min\\NF_RacksHE_UnBoxed.sql",
+        "DriveFileName": "NF_RacksHE_UnBoxed.csv"
+    }
+]

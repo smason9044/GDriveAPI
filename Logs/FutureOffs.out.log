@@ -1,0 +1,10 @@
+==> Processing: FutureOffs.csv
+   Assemblies loaded from: C:\GDriveAPI\lib
+   Target: FBRDATA\TimeClock
+   Running SQL file: C:\GDriveAPI\Queries\Daily\FutureOffs.sql
+   Invoke-Sqlcmd duration: 2.5s
+   SQL ok. Rows: 447, Cols: 12
+   CSV bytes (pre-upload): 72506
+   Drive updated: FutureOffs.csv
+   Upload duration: 2.2s
+Exported 447 rows to FutureOffs.csv

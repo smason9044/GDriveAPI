@@ -1,0 +1,83 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\FutureOffs.sql",
+        "DriveFileName": "FutureOffs.csv"
+     },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\OpenTermRequest.sql",
+        "DriveFileName": "OpenTermRequest.csv"
+     },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\LogisticsShiftOutOT.sql",
+        "DriveFileName": "LogisticsShiftOutOT.csv"
+     },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\EmpShiftVsAssignedInShift.sql",
+        "DriveFileName": "EmpShiftVsAssignedInShift.csv"
+     },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\ConsecutiveNCNS.sql",
+        "DriveFileName": "ConsecutiveNCNS.csv"
+     },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ProcessDetails",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\WO_EffAG.sql",
+        "DriveFileName": "WO_EffAG.csv"
+     },
+    {	"SQLServer": "FBRDATA",
+        "Database": "ControlDB",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\EmployeeCertifications.sql",
+        "DriveFileName": "EmployeeCertifications.csv"
+     },
+    {	"SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\LoopbacksRM.sql",
+        "DriveFileName": "LoopbacksRM.csv"
+     },
+    {	"SQLServer": "FBRDATA",
+        "Database": "ProcessDetails",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\PartNo_ModifiedDateWithNotes.sql",
+        "DriveFileName": "PartNo_ModifiedDateWithNotes.csv"
+     },
+    {	"SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\OTBillableDays.sql",
+        "DriveFileName": "OTBillableDays.csv"
+     },
+     {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\employee_master_view.sql",
+        "DriveFileName": "employee_master_view.csv"
+     },
+     {
+        "SQLServer": "FBRDATA",
+        "Database": "CorrAct",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\corrective_action.sql",
+        "DriveFileName": "corrective_action.csv"
+     },
+     {
+        "SQLServer": "FBRDATA",
+        "Database": "ProdDist",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\build_plan_with_components_detail.sql",
+        "DriveFileName": "build_plan_with_components_detail.csv"
+     },
+     {
+        "SQLServer": "FBRDATA",
+        "Database": "ControlDB",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Daily\\certifications_pivot.sql",
+        "DriveFileName": "certifications_pivot.csv"
+     }
+]
+

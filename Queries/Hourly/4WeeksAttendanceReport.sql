@@ -1,0 +1,35 @@
+SELECT EmpID,
+       EMP_LongName,
+       EMP_JobTitle,
+       EMP_StartDate,
+       EMP_Dept,
+       EMP_FunctionArea,
+       EMP_ShiftDesc,
+       YRWK,
+       Day,
+       SchInTime,
+       ClockInTime,
+       TurnstileTime,
+       CategoryCode,
+       Reason,
+       SupName,
+       SupRole,
+       EMP_ProdGroup,
+       EMP_PayRateType,
+       EmployeeStatus,
+       EMP_Agency,
+       EMP_ExpenseType,
+	   ClockIn_R,
+       ClockOut_R,
+       BreakOut,
+       BreakIn,
+       BreakHrs,
+       Mins_On_Break,
+       ActWorkedHrs,
+	   format(DATE,'yyyy-MM-dd') as Date
+FROM TimeClock.dbo.FourWeeksAttendanceJack
+WHERE DATE
+BETWEEN CONVERT(DATE, CONVERT(DATETIME, DATEDIFF(day, 28, GETDATE() - DATEDIFF(day, 0, GETDATE()) % 7))) AND CONVERT(
+                                                                                                                        DATE,
+                                                                                                                        GETDATE()
+                                                                                                                    )

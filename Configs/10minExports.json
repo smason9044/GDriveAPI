@@ -1,0 +1,56 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\QADumpJack.sql",
+        "DriveFileName": "QADumpJack.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\TestSlotsImport.sql",
+        "DriveFileName": "TestSlotsImport.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "CMMS",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\WOCompDetFB.sql",
+        "DriveFileName": "WOCompDetFB.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\temp_part_alloc_FB.sql",
+        "DriveFileName": "temp_part_alloc_FB.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PRODDIST",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\get_base_part_bin_qty.sql",
+        "DriveFileName": "get_base_part_bin_qty.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\tray_tla_open_wo_comp_cnt.sql",
+        "DriveFileName": "tray_tla_open_wo_comp_cnt.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\open_wo_CQA_hipot_cnt.sql",
+        "DriveFileName": "open_wo_CQA_hipot_cnt.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\wo_parts_rtx_fb.sql",
+        "DriveFileName": "wo_parts_rtx_fb.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "Timeclock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\10min\\EmpDailyTurnstile.sql",
+        "DriveFileName": "EmpDailyTurnstile.csv"
+     }
+]

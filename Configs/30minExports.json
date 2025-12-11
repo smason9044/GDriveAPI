@@ -1,0 +1,68 @@
+[
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\OverallInduction.sql",
+        "DriveFileName": "OverallInduction.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\OpticsFailRacks.sql",
+        "DriveFileName": "OpticsFailRacks.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\CBLShrink.sql",
+        "DriveFileName": "CBLShrink.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\Tray-Van_CurrDay_BuildQTY.sql",
+        "DriveFileName": "Tray-Van_CurrDay_BuildQTY.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PRODDIST",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\WB_Box_Status.sql",
+        "DriveFileName": "WB_Box_Status.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "ProcessDetails",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\get_takt_times.sql",
+        "DriveFileName": "get_takt_times.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "TimeClock",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\total_dept_hours.sql",
+        "DriveFileName": "total_dept_hours.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "WreckingBall",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\Reman_Racks.sql",
+        "DriveFileName": "Reman_Racks.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "WreckingBall",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\WB_Open_Order_Report.sql",
+        "DriveFileName": "WB_Open_Order_Report.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "PRODDIST",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\Decom_WIP_Request_Form.sql",
+        "DriveFileName": "Decom_WIP_Request_Form.csv"
+    },
+    {
+        "SQLServer": "FBRDATA",
+        "Database": "MIMDISTN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\30min\\GPNsOnTheFloor.sql",
+        "DriveFileName": "GPNsOnTheFloor.csv"
+    }
+]

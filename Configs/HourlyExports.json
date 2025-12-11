@@ -1,0 +1,225 @@
+[
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\PalletCount.sql",
+    "DriveFileName": "PalletCount.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "Timeclock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\EmployeeMasterOccGrad.sql",
+    "DriveFileName": "EmployeeMasterOccGrad.csv"
+  },
+ {
+    "SQLServer": "FBRDATA",
+    "Database": "Timeclock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\LateAttendanceDailyReport.sql",
+    "DriveFileName": "LateAttendanceDailyReport.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\FailedSN.sql",
+    "DriveFileName": "FailedSN.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\4WeeksAttendanceReport.sql",
+    "DriveFileName": "4WeeksAttendanceReport.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\LineTracker.sql",
+    "DriveFileName": "LineTracker.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\Inbound_DT_Inv.sql",
+    "DriveFileName": "Inbound_DT_Inv.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\TMA_dailyPunches.sql",
+    "DriveFileName": "TMA_dailyPunches.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\UsageDataDetailUsedFlags.sql",
+    "DriveFileName": "UsageDataDetailUsedFlags.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "CMMS",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\RRQA_365days.sql",
+    "DriveFileName": "RRQA_365days.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\CompBasePartNum.sql",
+    "DriveFileName": "CompBasePartNum.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "QualityReporting",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\HumanErrorDataDump.sql",
+    "DriveFileName": "HumanErrorDataDump.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "QualityReporting",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\QTYBuiltwithWorkOrd.sql",
+    "DriveFileName": "QTYBuiltwithWorkOrd.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "CMMS",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\CompletedWOsRM.sql",
+    "DriveFileName": "CompletedWOsRM.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "QualityReporting",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\WrongDebugActionFS.sql",
+    "DriveFileName": "WrongDebugActionFS.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "CMMS",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\PMScheduleFB.sql",
+    "DriveFileName": "PMScheduleFB.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\RackLastTestFlag.sql",
+    "DriveFileName": "RackLastTestFlag.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\SchematicKit.sql",
+    "DriveFileName": "SchematicKit.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\PQA_Data.sql",
+    "DriveFileName": "PQA_Data.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\FQA_Data.sql",
+    "DriveFileName": "FQA_Data.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\matTransRepFB_edited.sql",
+    "DriveFileName": "matTransRepFB_edited.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\matTransRepFBDECOM.sql",
+    "DriveFileName": "matTransRepFBDECOM.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\OpenOrders_Packaging.sql",
+    "DriveFileName": "OpenOrders_Packaging.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "TimeClock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\MIMAttTracker_FB.sql",
+    "DriveFileName": "MIMAttTracker_FB.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\green_slot_info.sql",
+    "DriveFileName": "green_slot_info.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\trays_decom_docs.sql",
+    "DriveFileName": "trays_decom_docs.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "TimeClock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\daily_occurrences.sql",
+    "DriveFileName": "daily_occurrences.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "TimeClock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\hr_daily_report.sql",
+    "DriveFileName": "hr_daily_report.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "TimeClock",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\last_worked_date_fb.sql",
+    "DriveFileName": "last_worked_date_fb.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\goo_inv_snapshot.sql",
+    "DriveFileName": "goo_inv_snapshot.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\fb_stock_inventory.sql",
+    "DriveFileName": "fb_stock_inventory.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "WreckingBall",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\get_wb_boxed_data.sql",
+    "DriveFileName": "get_wb_boxed_data.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\LogisticsScans.sql",
+    "DriveFileName": "LogisticsScans.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "PRODDIST",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\RPT_BoxtStatus_CONS.sql",
+    "DriveFileName": "RPT_BoxtStatus_CONS.csv"
+  },
+  {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopFloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\racks_failure_debug_fbnf.sql",
+        "DriveFileName": "racks_failure_debug_fbnf.csv"
+  },
+  {
+    "SQLServer": "FBRDATA",
+    "Database": "ShopFloorN",
+    "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\HumanErrDumpRacks.sql",
+    "DriveFileName": "HumanErrDumpRacks.csv"
+  },
+  {
+        "SQLServer": "FBRDATA",
+        "Database": "ShopfloorN",
+        "QueryFilePath": "C:\\GDriveAPI\\Queries\\Hourly\\TrayDebugData6Months.sql",
+        "DriveFileName": "TrayDebugData6Months.csv"
+  }
+]
+
