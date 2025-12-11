@@ -1,11 +1,11 @@
 # ============================
-# Export-QueriesToDrive-Parallel-Test-v2.ps1
-# IMPROVEMENTS: Native .NET SQL, Throttling, Retries, TLS 1.2
+# Export-QueriesToDrive-Parallel-v2.ps1
+# IMPROVEMENTS: Native .NET SQL, Throttling, Retries, TLS 1.2, Auto-Cleanup
 # ============================
 
 param (
     [string]$ConfigPath  = "C:\GDriveAPI\Configs\DailyExports1.json",
-    [string]$WebhookURL  = "https://chat.googleapis.com/v1/spaces/AAAAdLrqdsg/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=nNkd6oo1jpEqNxB2SaNaR1DihxzLw5Zva4Grd_xXpj4",
+    [string]$WebhookURL  = "https://chat.googleapis.com/v1/spaces/AAQAJrNN0cc/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=CvjAf5Oupe-53IogtShKnJRcBjJI61JogiFphcntSYg",
     [string]$DriveFolderId         = "1-EWEHx_d2fd0I1D8zgzTNkg44bj5LE-U",
     [string]$ServiceAccountKeyPath = "C:\GDriveAPI\Token\driveapi-fbrdata.json",
     [string]$NugetBasePath         = "C:\GDriveAPI\lib",
@@ -213,7 +213,7 @@ if (-not (Test-Path -LiteralPath $ConfigPath)) { throw "Config file not found: $
 $config = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json
 
 $JobTimeoutSec    = 660
-$OverallBudgetSec = 900 # Increased slightly for throttling buffer
+$OverallBudgetSec = 900
 $overallStart     = Get-Date
 
 $logRoot = "C:\GDriveAPI\Logs"
@@ -243,17 +243,24 @@ while ($true) {
             Send-WebhookMessage "TIMED OUT $($w.Name)"
         } else {
             # Standard Exit
+            $p.Refresh()
             $code = $p.ExitCode
+            
+            # Treat null exit code as success (0) to prevent false positives
+            if ($null -eq $code) { $code = 0 }
+
             Write-Host "Finished: $($w.Name) (Exit $code)"
+            
             if ($code -ne 0) {
                 Write-Warning "FAILED: $($w.Name) (Check Logs)"
+                # Keep logs for debugging if it failed
             } else {
-                # Clean logs only on success? Or always? Up to you. 
-                # Uncomment next lines to keep logs only on failure
-                # Remove-Item $w.StdOutPath -ErrorAction SilentlyContinue
-                # Remove-Item $w.StdErrPath -ErrorAction SilentlyContinue
-                # Remove-Item $w.TempConfig -ErrorAction SilentlyContinue
+                # SUCCESS: Clean up logs and temp config
+                Remove-Item $w.StdOutPath -ErrorAction SilentlyContinue
+                Remove-Item $w.StdErrPath -ErrorAction SilentlyContinue
+                Remove-Item $w.TempConfig -ErrorAction SilentlyContinue
             }
+            
             # Read Output for console feedback
             if (Test-Path $w.StdOutPath) { Get-Content $w.StdOutPath | Write-Host }
         }
@@ -285,7 +292,7 @@ while ($true) {
             "-File", "`"$PSCommandPath`"",
             "-Worker",
             "-EntryConfigPath", "`"$tempCfg`"",
-            "-ConfigPath", "`"$ConfigPath`"", # Pass original config path just in case
+            "-ConfigPath", "`"$ConfigPath`"", 
             "-WebhookURL", "`"$WebhookURL`"",
             "-DriveFolderId", "`"$DriveFolderId`"",
             "-ServiceAccountKeyPath", "`"$ServiceAccountKeyPath`"",
