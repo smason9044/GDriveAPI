@@ -1,6 +1,6 @@
 # ============================
-# Export-QueriesToDrive-Parallel-v2.ps1
-# IMPROVEMENTS: Native .NET SQL, Throttling, Retries, TLS 1.2, Auto-Cleanup
+# Export-QueriesToDrive-Parallel.ps1
+# IMPROVEMENTS: Native .NET SQL, Throttling, Retries, TLS 1.2, Corrected Logging
 # ============================
 
 param (
@@ -16,7 +16,7 @@ param (
     [string]$EntryConfigPath
 )
 
-# Force TLS 1.2 for Google API compatibility
+# Force TLS 1.2 for Google API compatibility on Server 2012 R2
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 
 # --------------
@@ -246,23 +246,24 @@ while ($true) {
             $p.Refresh()
             $code = $p.ExitCode
             
-            # Treat null exit code as success (0) to prevent false positives
+            # Null exit code safety
             if ($null -eq $code) { $code = 0 }
 
             Write-Host "Finished: $($w.Name) (Exit $code)"
-            
+
+            # --- CORRECTED ORDER: Read FIRST, Delete SECOND ---
+            if (Test-Path $w.StdOutPath) { Get-Content $w.StdOutPath | Write-Host }
+            if (Test-Path $w.StdErrPath) { Get-Content $w.StdErrPath | Write-Warning }
+
             if ($code -ne 0) {
                 Write-Warning "FAILED: $($w.Name) (Check Logs)"
-                # Keep logs for debugging if it failed
+                # Logs preserved for debugging
             } else {
-                # SUCCESS: Clean up logs and temp config
+                # SUCCESS: Clean up
                 Remove-Item $w.StdOutPath -ErrorAction SilentlyContinue
                 Remove-Item $w.StdErrPath -ErrorAction SilentlyContinue
                 Remove-Item $w.TempConfig -ErrorAction SilentlyContinue
             }
-            
-            # Read Output for console feedback
-            if (Test-Path $w.StdOutPath) { Get-Content $w.StdOutPath | Write-Host }
         }
     }
 
